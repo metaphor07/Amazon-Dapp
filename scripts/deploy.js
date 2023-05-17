@@ -12,6 +12,27 @@ const tokens = (n) => {
 }
 
 async function main() {
+  // setup deployer account //it takes the first account of your local system blockchain
+  const [deployer] = await ethers.getSigners()
+
+  // now, deploy() the contract
+  const Dappazon = await hre.ethers.getContractFactory("Dappazon");
+  const dappazon = await Dappazon.deploy();
+  await dappazon.deployed();
+
+  console.log(`Deployed Dappazon contract at: ${dappazon.address}`)
+
+  // listing the items, which store in this path{"../src/items.json"}, as a "json" format
+  items.forEach(async(item) =>{
+    // we need to distrcuture form the "item"
+    const {id, name, category, image, price, rating, stock} = item;
+
+    const transaction = await dappazon.connect(deployer).listingTheItem(
+     id, name, category, image, tokens(price), rating, stock
+    )
+    await transaction.wait();
+    console.log("Listed item", id,":", name);
+  })
 
 }
 
